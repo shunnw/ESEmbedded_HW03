@@ -56,8 +56,12 @@ This is the hw03 sample. Please follow the steps below.
 **★★★ Please take your note here ★★★**
 
 # 1.實驗題目
++ 改寫`main.c`，觀察C語言的函式如何傳遞與回傳參數。
 
 # 2.實驗步驟
++ 在`main.c`中設計兩個函式：`addtwo()`輸入兩個變數，`countfive()`輸入五個變數，而在主程式`reset_handler()`呼叫以上兩個函式作數值計算，並回傳計算結果至主程式。
++ 根據 Procedure Call Standard for the ARM Architecture(AAPCS)
+
 
 ### main.c
 ```c
@@ -80,7 +84,7 @@ void reset_handler(void)
 }
 ```
 
-### Disassembly
+### Result from objdump
 ```
 Disassembly of section .mytext:
 
@@ -128,14 +132,14 @@ Disassembly of section .mytext:
   52:	bf00      	nop
 
 00000054 <reset_handler>:
-  54:	b580      	push	{r7, lr}
-  56:	b082      	sub	sp, #8
-  58:	af02      	add	r7, sp, #8
-  5a:	2001      	movs	r0, #1
-  5c:	2102      	movs	r1, #2
-  5e:	f7ff ffd3 	bl	8 <addtwo>
-  62:	2305      	movs	r3, #5
-  64:	9300      	str	r3, [sp, #0]
+  54:	b580      	push	{r7, lr}		//將r7,lr放入堆疊記憶體中
+  56:	b082      	sub	sp, #8			//sp往下推出8個位置來放入變數
+  58:	af02      	add	r7, sp, #8		//r7=sp+8
+  5a:	2001      	movs	r0, #1			//將1放入r0
+  5c:	2102      	movs	r1, #2 			//將2放入r1
+  5e:	f7ff ffd3 	bl	8 <addtwo>		//執行副函式addtwo()
+  62:	2305      	movs	r3, #5			//將5放入r3
+  64:	9300      	str	r3, [sp, #0]		//將r3放入sp+0的記憶體位置
   66:	2001      	movs	r0, #1
   68:	2102      	movs	r1, #2
   6a:	2203      	movs	r2, #3
@@ -180,3 +184,6 @@ Disassembly of section .ARM.attributes:
 ```
 
 # 3.結果與討論
+1.參數會存在r0-r3暫存器中，超過四個變數則由sp進行資料傳輸
+2.
+3.
