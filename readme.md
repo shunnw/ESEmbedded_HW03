@@ -59,7 +59,7 @@ This is the hw03 sample. Please follow the steps below.
 + 改寫`main.c`，觀察C語言的函式如何傳遞與回傳參數。
 
 # 2.實驗步驟
-+ 在`main.c`中設計兩個函式：`addtwo()`輸入兩個變數，`countfive()`輸入五個變數，而在主程式`reset_handler()`呼叫以上兩個函式作數值計算，並回傳計算結果至主程式。
++ 在`main.c`中設計兩個函式：`addtwo()`輸入兩個變數時資料如何傳遞，而`countfive()`輸入五個變數，而在主程式`reset_handler()`呼叫以上兩個函式作數值計算，並回傳計算結果至主程式。
 + 根據 Procedure Call Standard for the ARM Architecture(AAPCS)
 
 
@@ -93,24 +93,24 @@ Disassembly of section .mytext:
    4:	00000055 	andeq	r0, r0, r5, asr r0
 
 00000008 <addtwo>:
-   8:	b480      	push	{r7}
-   a:	b083      	sub	sp, #12
-   c:	af00      	add	r7, sp, #0
-   e:	6078      	str	r0, [r7, #4]
-  10:	6039      	str	r1, [r7, #0]
-  12:	687a      	ldr	r2, [r7, #4]
-  14:	683b      	ldr	r3, [r7, #0]
-  16:	4413      	add	r3, r2
+   8:	b480      	push	{r7}			//將r7放入堆疊記憶體中，執行完畢後放回r7，避免影響主程式
+   a:	b083      	sub	sp, #12			//sp往下推出12個位置來放入變數
+   c:	af00      	add	r7, sp, #0		//r7=sp
+   e:	6078      	str	r0, [r7, #4]		//將主程式傳入的r0放入r7+4的記憶體位置
+  10:	6039      	str	r1, [r7, #0]		//將主程式傳入的r1放入r7的記憶體位置
+  12:	687a      	ldr	r2, [r7, #4]		//從r7+4的記憶體位置取出至r2暫存器
+  14:	683b      	ldr	r3, [r7, #0]		//從r7的記憶體位置取出至r3暫存器
+  16:	4413      	add	r3, r2			//
   18:	4618      	mov	r0, r3
-  1a:	370c      	adds	r7, #12
+  1a:	370c      	adds	r7, #12			//sp往上推12個位置回到原位
   1c:	46bd      	mov	sp, r7
   1e:	f85d 7b04 	ldr.w	r7, [sp], #4
   22:	4770      	bx	lr
 
 00000024 <countfive>:
-  24:	b480      	push	{r7}
-  26:	b085      	sub	sp, #20
-  28:	af00      	add	r7, sp, #0
+  24:	b480      	push	{r7}			//將r7放入堆疊記憶體中，執行完畢後放回r7，避免影響主程式
+  26:	b085      	sub	sp, #20			//sp往下推出20個位置來放入變數
+  28:	af00      	add	r7, sp, #0		//r7=sp
   2a:	60f8      	str	r0, [r7, #12]
   2c:	60b9      	str	r1, [r7, #8]
   2e:	607a      	str	r2, [r7, #4]
@@ -139,12 +139,12 @@ Disassembly of section .mytext:
   5c:	2102      	movs	r1, #2 			//將2放入r1
   5e:	f7ff ffd3 	bl	8 <addtwo>		//執行副函式addtwo()
   62:	2305      	movs	r3, #5			//將5放入r3
-  64:	9300      	str	r3, [sp, #0]		//將r3放入sp+0的記憶體位置
-  66:	2001      	movs	r0, #1
-  68:	2102      	movs	r1, #2
-  6a:	2203      	movs	r2, #3
-  6c:	2304      	movs	r3, #4
-  6e:	f7ff ffd9 	bl	24 <countfive>
+  64:	9300      	str	r3, [sp, #0]		//將r3放入sp記憶體位置
+  66:	2001      	movs	r0, #1			//將1放入r0
+  68:	2102      	movs	r1, #2			//將2放入r1
+  6a:	2203      	movs	r2, #3			//將3放入r2
+  6c:	2304      	movs	r3, #4			//將4放入r3
+  6e:	f7ff ffd9 	bl	24 <countfive>		//執行副函式countfive()
   72:	e7fe      	b.n	72 <reset_handler+0x1e>
 
 Disassembly of section .comment:
