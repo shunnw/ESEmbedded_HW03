@@ -59,9 +59,17 @@ This is the hw03 sample. Please follow the steps below.
 + 改寫`main.c`，觀察C語言的函式如何傳遞與回傳參數。
 
 # 2.實驗步驟
-+ 在`main.c`中設計兩個函式：`addtwo()`輸入兩個變數時資料如何傳遞，而`countfive()`輸入五個變數，而在主程式`reset_handler()`呼叫以上兩個函式作數值計算，並回傳計算結果至主程式。
++ 在`main.c`中設計兩個函式：由`addtwo()`觀察輸入兩個變數時資料如何傳遞，而`countfive()`可觀察輸入五個變數時資料如何傳遞，而在主程式`reset_handler()`呼叫以上兩個函式作數值計算，並回傳計算結果至主程式。
 + 根據 Procedure Call Standard for the ARM Architecture(AAPCS)
+	+ 5.1.1
+	```
+	The first four registers r0-r3 (a1-a4) are used to pass argument values into a subroutine and to return a result value from a function. They may also be used to hold intermediate values within a routine (but, in general, only between subroutine calls).
+	```
 
+	+ 5.5
+	```
+	Parameter Passing The base standard provides for passing arguments in core registers (r0-r3) and on the stack. For subroutines that take a small number of parameters, only registers are used, greatly reducing the overhead of a call.
+	```
 
 ### main.c
 ```c
@@ -93,58 +101,58 @@ Disassembly of section .mytext:
    4:	00000055 	andeq	r0, r0, r5, asr r0
 
 00000008 <addtwo>:
-   8:	b480      	push	{r7}			//將r7放入堆疊記憶體中，執行完畢後放回r7，避免影響主程式
-   a:	b083      	sub	sp, #12			//sp往下推出12個位置來放入變數
-   c:	af00      	add	r7, sp, #0		//r7=sp
-   e:	6078      	str	r0, [r7, #4]		//將主程式傳入的r0放入r7+4的記憶體位置
-  10:	6039      	str	r1, [r7, #0]		//將主程式傳入的r1放入r7的記憶體位置
-  12:	687a      	ldr	r2, [r7, #4]		//從r7+4的記憶體位置取出至r2暫存器
-  14:	683b      	ldr	r3, [r7, #0]		//從r7的記憶體位置取出至r3暫存器
-  16:	4413      	add	r3, r2			//
-  18:	4618      	mov	r0, r3
-  1a:	370c      	adds	r7, #12			//sp往上推12個位置回到原位
-  1c:	46bd      	mov	sp, r7
+   8:	b480      	push	{r7}			; 將r7放入堆疊記憶體中，執行完畢後放回r7，避免影響主程式
+   a:	b083      	sub	sp, #12			; sp往下推出12個位置來放入變數
+   c:	af00      	add	r7, sp, #0		; r7=sp
+   e:	6078      	str	r0, [r7, #4]		; 將主程式傳入的r0放入r7+4的記憶體位置
+  10:	6039      	str	r1, [r7, #0]		; 將主程式傳入的r1放入r7的記憶體位置
+  12:	687a      	ldr	r2, [r7, #4]		; 從r7+4的記憶體位置取出至r2暫存器
+  14:	683b      	ldr	r3, [r7, #0]		; 從r7的記憶體位置取出至r3暫存器
+  16:	4413      	add	r3, r2			; r3<-r2
+  18:	4618      	mov	r0, r3			; r0=r3
+  1a:	370c      	adds	r7, #12			; sp往上推12個位置回到原位
+  1c:	46bd      	mov	sp, r7			; sp=r7`
   1e:	f85d 7b04 	ldr.w	r7, [sp], #4
   22:	4770      	bx	lr
 
 00000024 <countfive>:
-  24:	b480      	push	{r7}			//將r7放入堆疊記憶體中，執行完畢後放回r7，避免影響主程式
-  26:	b085      	sub	sp, #20			//sp往下推出20個位置來放入變數
-  28:	af00      	add	r7, sp, #0		//r7=sp
-  2a:	60f8      	str	r0, [r7, #12]
-  2c:	60b9      	str	r1, [r7, #8]
-  2e:	607a      	str	r2, [r7, #4]
-  30:	603b      	str	r3, [r7, #0]
-  32:	68bb      	ldr	r3, [r7, #8]
-  34:	687a      	ldr	r2, [r7, #4]
+  24:	b480      	push	{r7}			; 將r7放入堆疊記憶體中，執行完畢後放回r7，避免影響主程式
+  26:	b085      	sub	sp, #20			; sp往下推出20個位置來放入變數
+  28:	af00      	add	r7, sp, #0		; r7=sp
+  2a:	60f8      	str	r0, [r7, #12]		; 將主程式傳入的r0放入r7+12的記憶體位置
+  2c:	60b9      	str	r1, [r7, #8]		; 將主程式傳入的r1放入r7+8的記憶體位置
+  2e:	607a      	str	r2, [r7, #4]		; 將主程式傳入的r2放入r7+4的記憶體位置
+  30:	603b      	str	r3, [r7, #0]		; 將主程式傳入的r3放入r7的記憶體位置
+  32:	68bb      	ldr	r3, [r7, #8]		; 從r7+8的記憶體位置取出至r3暫存器
+  34:	687a      	ldr	r2, [r7, #4]		; 從r7+4的記憶體位置取出至r2暫存器
   36:	fb02 f203 	mul.w	r2, r2, r3
-  3a:	68fb      	ldr	r3, [r7, #12]
-  3c:	441a      	add	r2, r3
-  3e:	683b      	ldr	r3, [r7, #0]
-  40:	441a      	add	r2, r3
-  42:	69bb      	ldr	r3, [r7, #24]
-  44:	1ad3      	subs	r3, r2, r3
-  46:	4618      	mov	r0, r3
-  48:	3714      	adds	r7, #20
-  4a:	46bd      	mov	sp, r7
+  3a:	68fb      	ldr	r3, [r7, #12]		; 從r7+12的記憶體位置取出至r3暫存器
+  3c:	441a      	add	r2, r3			; r2<-r3
+  3e:	683b      	ldr	r3, [r7, #0]		; 從r7的記憶體位置取出至r3暫存器
+  40:	441a      	add	r2, r3			; r2<-r3
+  42:	69bb      	ldr	r3, [r7, #24]		; 從r7+24的記憶體位置取出至r3暫存器
+  44:	1ad3      	subs	r3, r2, r3		; r3=r2-r3
+  46:	4618      	mov	r0, r3			; r0=r3
+  48:	3714      	adds	r7, #20			
+  4a:	46bd      	mov	sp, r7			; sp=r7
   4c:	f85d 7b04 	ldr.w	r7, [sp], #4
   50:	4770      	bx	lr
   52:	bf00      	nop
 
 00000054 <reset_handler>:
-  54:	b580      	push	{r7, lr}		//將r7,lr放入堆疊記憶體中
-  56:	b082      	sub	sp, #8			//sp往下推出8個位置來放入變數
-  58:	af02      	add	r7, sp, #8		//r7=sp+8
-  5a:	2001      	movs	r0, #1			//將1放入r0
-  5c:	2102      	movs	r1, #2 			//將2放入r1
-  5e:	f7ff ffd3 	bl	8 <addtwo>		//執行副函式addtwo()
-  62:	2305      	movs	r3, #5			//將5放入r3
-  64:	9300      	str	r3, [sp, #0]		//將r3放入sp記憶體位置
-  66:	2001      	movs	r0, #1			//將1放入r0
-  68:	2102      	movs	r1, #2			//將2放入r1
-  6a:	2203      	movs	r2, #3			//將3放入r2
-  6c:	2304      	movs	r3, #4			//將4放入r3
-  6e:	f7ff ffd9 	bl	24 <countfive>		//執行副函式countfive()
+  54:	b580      	push	{r7, lr}		; 將r7,lr放入堆疊記憶體中
+  56:	b082      	sub	sp, #8			; sp往下推出8個位置來放入變數
+  58:	af02      	add	r7, sp, #8		; r7=sp+8
+  5a:	2001      	movs	r0, #1			; 將1放入r0
+  5c:	2102      	movs	r1, #2 			; 將2放入r1
+  5e:	f7ff ffd3 	bl	8 <addtwo>		; 執行副函式addtwo()
+  62:	2305      	movs	r3, #5			; 將5放入r3
+  64:	9300      	str	r3, [sp, #0]		; 將r3放入sp記憶體位置
+  66:	2001      	movs	r0, #1			; 將1放入r0
+  68:	2102      	movs	r1, #2			; 將2放入r1
+  6a:	2203      	movs	r2, #3			; 將3放入r2
+  6c:	2304      	movs	r3, #4			; 將4放入r3
+  6e:	f7ff ffd9 	bl	24 <countfive>		; 執行副函式countfive()
   72:	e7fe      	b.n	72 <reset_handler+0x1e>
 
 Disassembly of section .comment:
@@ -184,6 +192,8 @@ Disassembly of section .ARM.attributes:
 ```
 
 # 3.結果與討論
-1.參數會存在r0-r3暫存器中，超過四個變數則由sp進行資料傳輸
-2.
-3.
+1.參數會存在`r0-r3`暫存器中，超過四個變數則由`sp`進行資料傳輸。
+
+2.`r7`用於`sp`移位或存放，可用於堆疊或是參數的存放。
+
+3.回傳數值時會先存在`r3`，再由r0回傳
